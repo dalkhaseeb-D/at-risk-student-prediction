@@ -144,7 +144,7 @@ A linear model on scaled counts represents a monotone trend exactly, with 53 par
 
 The constrained model moves up toward LR. ✔
 
-**Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap shrinks as data grows, which is what you expect when the true pattern is simple.
+**Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap decreases as data grows, which is what we expect when the true pattern is simple.
 
 ### Most important features 
 
