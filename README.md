@@ -60,8 +60,6 @@ The full run takes about 2 minutes on a 2-core laptop-class CPU. It writes every
 - Profile (10): module, presentation, gender, region, highest education, IMD band, age band, disability, previous attempts, studied credits.
 - Engagement, VLE days 0–27 only (4): total clicks, interaction records, active days, unique resources visited. Students with no activity get 0.
 
-**Features deliberately excluded.** `date_unregistration` (it encodes the label) and all VLE activity from day 28 onward (leakage). Assessment scores are also left out, so the model uses the same signals in every module and asks what engagement alone can do. The first assignment is due before day 28 in most presentations (median day 21.5), so adding scores that were submitted *and* marked before day 28 is a legitimate extension. It would need care with marking dates, which OULAD does not record.
-
 **Split.** Stratified 80/20 split, seed 42: 22,030 train and 5,508 test rows, 44.1% at risk in both.
 
 **Preprocessing.** The same `ColumnTransformer` is used for every model, fitted on training data only:
