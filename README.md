@@ -167,13 +167,6 @@ Raw click volume matters much less (0.006). Regularity beats volume.
 - Kuzilek, Hlosta & Zdrahal (2017), OULAD, *Scientific Data* 4:170171.
 - `data-edu/oulad` R package (mirror used when UCI was unreachable): https://github.com/data-edu/oulad
 
-## Use of AI assistants
-We used Claude (Anthropic) to:
-- refactor the Colab notebook into the path-free script `src/run_experiment.py`;
-- add the timing and model-size measurements, the `?`-aware missing-value audit, the leakage checks, and the cross-validated ablations;
-- draft this README and the slide text.
-
-All numbers in this README and the slides come from running the code in this repository. The group checked the outputs, the explanation, and the ablation design.
 
 ## Contributions
 
