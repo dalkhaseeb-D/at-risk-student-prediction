@@ -160,8 +160,8 @@ The constrained model moves up toward LR. ✔
 
 | Member | Contribution |
 |---|---|
-| Member 1 (Duaa Alkhaseeb) | Dataset selection, data download and audit notebook, ML-classifiers Applying |Feature extraction
-| Member 2 (Arwa Al-shannaq)| Data Preprocessing|comparison table of timing/size measurement |README, slides, reproducibility testing |Ablation design and analysis, figures
+| Member 1 (Duaa Alkhaseeb) | Dataset selection, data download and audit notebook, ML-classifiers Applying, Feature extraction
+| Member 2 (Arwa Al-shannaq)| Data Preprocessing, Comparison table of timing/size measurement, README, slides, reproducibility testing, Ablation design and analysis, figures
 
 
 ## Licence
