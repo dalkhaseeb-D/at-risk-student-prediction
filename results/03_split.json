@@ -1,0 +1,7 @@
+{
+  "train": 22030,
+  "test": 5508,
+  "train_at_risk_pct": 44.13,
+  "test_at_risk_pct": 44.14,
+  "students_in_both_train_and_test": 844
+}

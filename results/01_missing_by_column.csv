@@ -1,0 +1,8 @@
+File,Column,Missing
+assessments,date,11
+studentInfo,imd_band,1111
+studentRegistration,date_registration,45
+studentRegistration,date_unregistration,22521
+studentAssessment,score,173
+vle,week_from,5243
+vle,week_to,5243

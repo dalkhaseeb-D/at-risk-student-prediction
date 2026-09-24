@@ -1,0 +1,16 @@
+{
+  "registrations": 32593,
+  "withdrew_before_day28_excluded": 5055,
+  "eligible_at_day28": 27538,
+  "at_risk": 12153,
+  "at_risk_pct": 44.13,
+  "no_vle_activity_wk1_4": 1246,
+  "unique_students": 24839,
+  "students_with_multiple_registrations": 2578,
+  "final_result_counts": {
+    "Pass": 12361,
+    "Fail": 7044,
+    "Withdrawn": 5109,
+    "Distinction": 3024
+  }
+}

@@ -1,0 +1,8 @@
+File,Rows,Columns,Duplicate_Rows,NaN_naive_audit,Missing_as_?
+courses.csv,22,3,0,0,0
+assessments.csv,206,6,0,0,11
+studentInfo.csv,32593,12,0,0,1111
+studentRegistration.csv,32593,5,0,0,22566
+studentAssessment.csv,173912,5,0,0,173
+vle.csv,6364,6,0,0,10486
+studentVle.csv,10655280,6,787170,0,0
