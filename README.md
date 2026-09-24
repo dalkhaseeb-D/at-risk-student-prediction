@@ -128,21 +128,11 @@ A linear model on scaled counts represents a monotone trend exactly, with 53 par
 
 ### Ablations that test the explanation
 
-**A. Remove the monotone engagement signal.**
+**Remove the monotone engagement signal.**
 *Prediction:* if LR wins *because of* the smooth engagement trend, its lead over GB should appear when engagement features are present and vanish without them.
 *Result (5-fold CV, LR minus GB F1):* profile only **+0.1 pt** (0.578 vs 0.577, inside the noise); engagement only **+1.2 pt**; profile + engagement **+1.4 pt**. ✔
 
-**B. Give GB the data property.**
-*Prediction:* if the signal really is monotone, forcing GB to be monotone-decreasing in the four engagement features (`monotonic_cst`) should reduce its overfitting and close the gap to LR.
-*Result (5-fold CV):*
-
-| Model | F1 | AUC | Overfitting gap |
-|---|---|---|---|
-| GB, unconstrained | 0.636 | 0.743 | 0.051 |
-| GB, monotone | 0.642 | 0.745 | 0.037 |
-| LR | 0.650 | 0.743 | 0.002 |
-
-The constrained model moves up toward LR. ✔
+The constrained model moves up toward LR. 
 
 **Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap decreases as data grows, which is what we expect when the true pattern is simple.
 
