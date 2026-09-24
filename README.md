@@ -146,21 +146,9 @@ The constrained model moves up toward LR. ✔
 
 **Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap shrinks as data grows, which is what you expect when the true pattern is simple.
 
-### Most important features (permutation importance, drop in F1)
+### Most important features 
 
-1. Active days: 0.106
-2. Module: 0.054
-3. Unique sites: 0.038
-4. Highest education: 0.022
-5. IMD band: 0.011
-
-Raw click volume matters much less (0.006). Regularity beats volume.
-
-### Limitations
-- The results show association, not causation.
-- The data come from one UK distance-learning university (2013–2014).
-- No fairness audit was done across `imd_band`, `disability`, or `age_band`. One is required before any real use.
-- F1 depends on the 0.5 threshold. Tuning the threshold would shift precision against recall for all models.
+<img width="800" height="500" alt="Feature Importance for At-Risk Student Prediction" src="https://github.com/user-attachments/assets/79517b21-6d34-4215-97e2-28523dfaa852" />
 
 ## Libraries and references
 - scikit-learn (Pedregosa et al., 2011, JMLR 12), pandas, NumPy, matplotlib, DuckDB (for aggregating the 10.6 M-row VLE file), requests.
@@ -170,15 +158,11 @@ Raw click volume matters much less (0.006). Regularity beats volume.
 
 ## Contributions
 
-> *Replace with your group's real names and tasks. Every member must also have commits in the history.*
-
 | Member | Contribution |
 |---|---|
-| Member 1 (dalkhaseeb-D) | Dataset selection, data download and audit notebook |
-| Member 2 | Day-28 cohort definition, leakage checks |
-| Member 3 | Model pipeline, comparison table, timing/size measurement |
-| Member 4 | Ablation design and analysis, figures |
-| Member 5 | README, slides, reproducibility testing |
+| Member 1 (Duaa Alkhaseeb) | Dataset selection, data download and audit notebook, ML-classifiers Applying | Feature extraction
+| Member 2 (Arwa Al-shannaq)| Day-28 cohort definition, leakage checks |comparison table of timing/size measurement | README, slides, reproducibility testing |Ablation design and analysis, figures
+
 
 ## Licence
 Code: MIT (see `LICENSE`). Data: OULAD, CC BY 4.0. The data is **not** redistributed in this repository; the script downloads it from UCI.
