@@ -79,7 +79,7 @@ The full run takes about 2 minutes on a 2-core laptop-class CPU. It writes every
 
 A soft-voting ensemble (LR + RF + GB) is also reported.
 
-**Metrics.** F1 on the at-risk class is the main metric (we care about catching at-risk students without flooding tutors). We also report ROC-AUC, balanced accuracy, precision, and recall. Training time is the median of 3 fits. Model size is the number of learned parameters (LR coefficients, tree nodes) and the pickled size.
+**Metrics.** F1 on the at-risk class is the main metric. We also report ROC-AUC, balanced accuracy, precision, and recall.
 
 ## Data problems found
 
