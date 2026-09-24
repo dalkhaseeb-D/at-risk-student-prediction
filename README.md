@@ -19,8 +19,6 @@ CSBP711 Advanced Artificial Intelligence, Fall 2026, Assignment 1: Datasets and 
 | Version | UCI dataset id 349 (the only release; unchanged since 2017). Downloaded: **2026-09-24** |
 | Collection | Anonymised records from The Open University (UK): 7 modules, 22 module-presentations (2013–2014), 32,593 student registrations, 10.6 M daily VLE click-summary rows. The Open University's Knowledge Media Institute collected it from its production systems and released it after anonymisation (IMD band and age were banded, some regions merged). |
 
-> Mirror note: the UCI server was unreachable from one of our build environments. For that run we used the table-for-table mirror in the `data-edu/oulad` R package (https://github.com/data-edu/oulad), converted back to the original CSV layout with `?` for missing values. Row counts match UCI exactly (e.g. studentVle = 10,655,280). The only difference is row order, which changes the random split. Numbers from the original Colab notebook, which used the UCI download, agree with ours to within ±0.003 (e.g. LR F1 0.653 vs 0.650).
-
 ## Reproduce
 
 ```bash
