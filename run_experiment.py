@@ -2,7 +2,7 @@
 End-to-end experiment: early prediction of at-risk students on OULAD.
 
 Runs every step of the CSBP711 A1 pipeline from a clean checkout:
-    1. download + extract OULAD from the UCI repository (skipped if present)
+    1. get OULAD: CSVs already present -> download from UCI -> local fallback
     2. data audit (sizes, '?' missing markers, duplicates, class balance)
     3. build a day-28 prediction snapshot (no information after day 27)
     4. compare 5 algorithms with identical preprocessing and seed
@@ -12,8 +12,13 @@ Runs every step of the CSBP711 A1 pipeline from a clean checkout:
     7. permutation importance and 5-fold CV for the winner
 
 Usage:
-    python src/run_experiment.py                      # downloads data to ./data
-    python src/run_experiment.py --data-dir /path/to/oulad_csvs --skip-download
+    python src/run_experiment.py                          # download to ./data, else use a local copy
+    python src/run_experiment.py --local-source ~/Downloads/oulad.zip   # fallback zip or folder
+    python src/run_experiment.py --data-dir /path/to/oulad_csvs --offline   # never touch the network
+
+If the UCI URL is down, the script automatically looks for a local copy:
+--local-source (if given), then data/oulad.zip, data/raw/, oulad.zip,
+anonymisedData.zip, anonymisedData/, OULAD/. Folders are searched recursively.
 
 All outputs go to ./results (CSV tables) and ./figures (PNG charts).
 """
@@ -81,19 +86,115 @@ COLORS = {"good": "#2E86AB", "risk": "#E76F51"}
 # --------------------------------------------------------------------------
 # 1. Data acquisition
 # --------------------------------------------------------------------------
-def download_oulad(data_dir: Path) -> None:
-    if (data_dir / "studentVle.csv").exists():
-        print(f"[data] OULAD already present in {data_dir}")
-        return
-    print(f"[data] downloading OULAD from {UCI_URL}")
-    resp = requests.get(UCI_URL, timeout=600)
-    resp.raise_for_status()
-    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+REQUIRED_FILES = [
+    "courses.csv", "assessments.csv", "vle.csv", "studentInfo.csv",
+    "studentRegistration.csv", "studentAssessment.csv", "studentVle.csv",
+]
+# Local places searched (in order) when the UCI download fails.
+# Paths are relative to the working directory, i.e. the repository root.
+DEFAULT_LOCAL_SOURCES = [
+    "data/oulad.zip",
+    "data/raw",
+    "oulad.zip",
+    "anonymisedData.zip",
+    "anonymisedData",
+    "OULAD",
+]
+
+
+def _has_all_csvs(folder: Path) -> bool:
+    return all((folder / f).exists() for f in REQUIRED_FILES)
+
+
+def _find_csv_folder(root: Path) -> Path | None:
+    """Return the folder under `root` (any depth) that holds all OULAD CSVs."""
+    if _has_all_csvs(root):
+        return root
+    for hit in sorted(root.rglob("studentVle.csv")):
+        if _has_all_csvs(hit.parent):
+            return hit.parent
+    return None
+
+
+def _extract_zip(zip_source, data_dir: Path) -> Path | None:
+    """Extract a zip (path or bytes buffer), including any nested zips."""
+    with zipfile.ZipFile(zip_source) as zf:
         zf.extractall(data_dir)
-    # some mirrors wrap the CSVs in an inner zip
-    for inner in data_dir.glob("*.zip"):
-        with zipfile.ZipFile(inner) as zf:
-            zf.extractall(data_dir)
+    outer = Path(zip_source).resolve() if isinstance(zip_source, (str, Path)) else None
+    # some copies wrap the CSVs in an inner zip (e.g. anonymisedData.zip)
+    for inner in data_dir.rglob("*.zip"):
+        if outer is not None and inner.resolve() == outer:
+            continue  # don't re-extract the source zip itself (e.g. data/oulad.zip)
+        try:
+            with zipfile.ZipFile(inner) as zf:
+                zf.extractall(inner.parent)
+        except zipfile.BadZipFile:
+            pass
+    return _find_csv_folder(data_dir)
+
+
+def _try_download(data_dir: Path, url: str, timeout: int) -> Path | None:
+    print(f"[data] downloading OULAD from {url}")
+    try:
+        resp = requests.get(url, timeout=timeout)
+        resp.raise_for_status()
+        folder = _extract_zip(io.BytesIO(resp.content), data_dir)
+    except (requests.RequestException, zipfile.BadZipFile, OSError) as err:
+        print(f"[data] download failed: {type(err).__name__}: {err}")
+        return None
+    if folder is None:
+        print("[data] download finished but the archive did not contain all OULAD CSVs")
+    return folder
+
+
+def _try_local(source: Path, data_dir: Path) -> Path | None:
+    if not source.exists():
+        return None
+    print(f"[data] trying local copy: {source}")
+    if source.is_dir():
+        return _find_csv_folder(source)
+    if zipfile.is_zipfile(source):
+        return _extract_zip(source, data_dir)
+    return None
+
+
+def get_oulad(data_dir: Path, local_source: str | None = None,
+              url: str = UCI_URL, timeout: int = 120, offline: bool = False) -> Path:
+    """Locate the OULAD CSVs and return the folder that holds them.
+
+    Order: (1) CSVs already in data_dir -> (2) download from the UCI URL
+    -> (3) local fallback: --local-source if given, then DEFAULT_LOCAL_SOURCES.
+    A local source can be a folder of CSVs (searched recursively) or a .zip.
+    """
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    folder = _find_csv_folder(data_dir)
+    if folder is not None:
+        print(f"[data] using OULAD CSVs already in {folder}")
+        return folder
+
+    if not offline:
+        folder = _try_download(data_dir, url, timeout)
+        if folder is not None:
+            print(f"[data] downloaded and extracted to {folder}")
+            return folder
+        print("[data] falling back to a local copy ...")
+
+    candidates = ([local_source] if local_source else []) + DEFAULT_LOCAL_SOURCES
+    for cand in candidates:
+        folder = _try_local(Path(cand).expanduser(), data_dir)
+        if folder is not None:
+            print(f"[data] using local OULAD copy in {folder}")
+            return folder
+
+    raise FileNotFoundError(
+        "Could not get OULAD: the download failed and no local copy was found.\n"
+        f"  1. Download the zip manually from {url}\n"
+        "  2. Either put it at data/oulad.zip, or unzip it anywhere and run\n"
+        "     python src/run_experiment.py --local-source <folder-or-zip>\n"
+        f"Needed files: {', '.join(REQUIRED_FILES)}\n"
+        f"Searched: {', '.join(str(c) for c in candidates)}"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -270,22 +371,28 @@ def fit_and_score(X_train, X_test, y_train, y_test, categorical, numeric, repeat
 # --------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-dir", default="data")
+    ap.add_argument("--data-dir", default="data",
+                    help="where the CSVs are (or will be downloaded/extracted to)")
+    ap.add_argument("--local-source", default=None,
+                    help="fallback if the download fails: a folder of OULAD CSVs or a .zip")
+    ap.add_argument("--url", default=UCI_URL, help="download URL (default: UCI)")
+    ap.add_argument("--timeout", type=int, default=120, help="download timeout in seconds")
+    ap.add_argument("--skip-download", "--offline", dest="offline", action="store_true",
+                    help="never try the URL; use data-dir or a local source only")
     ap.add_argument("--results-dir", default="results")
     ap.add_argument("--figures-dir", default="figures")
-    ap.add_argument("--skip-download", action="store_true")
     args = ap.parse_args()
 
-    data_dir, out, figs = map(Path, (args.data_dir, args.results_dir, args.figures_dir))
-    for d in (data_dir, out, figs):
+    out, figs = Path(args.results_dir), Path(args.figures_dir)
+    for d in (out, figs):
         d.mkdir(parents=True, exist_ok=True)
-    if not args.skip_download:
-        download_oulad(data_dir)
+    data_dir = get_oulad(Path(args.data_dir), local_source=args.local_source,
+                         url=args.url, timeout=args.timeout, offline=args.offline)
 
     env = {"python": platform.python_version(), "sklearn": sklearn.__version__,
            "pandas": pd.__version__, "duckdb": duckdb.__version__,
            "machine": platform.machine(), "processor": platform.processor(),
-           "seed": SEED}
+           "seed": SEED, "data_folder": str(data_dir.resolve())}
     (out / "00_environment.json").write_text(json.dumps(env, indent=2))
 
     print("\n=== 2. Audit ===")
