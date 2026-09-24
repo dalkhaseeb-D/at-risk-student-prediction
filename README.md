@@ -138,7 +138,7 @@ The constrained model moves up toward LR.
 
 ### Most important features 
 
-<img width="800" height="500" alt="Feature Importance for At-Risk Student Prediction" src="https://github.com/user-attachments/assets/79517b21-6d34-4215-97e2-28523dfaa852" />
+<img width="800" height="500" alt="feature_importance" src="https://github.com/user-attachments/assets/8e22ab0b-5df7-4baf-add4-5b7b3b308331" />
 
 ## Libraries and references
 - scikit-learn (Pedregosa et al., 2011, JMLR 12), pandas, NumPy, matplotlib, DuckDB (for aggregating the 10.6 M-row VLE file), requests.
