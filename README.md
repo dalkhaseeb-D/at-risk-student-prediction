@@ -46,8 +46,6 @@ The full run takes about 2 minutes on a 2-core laptop-class CPU. It writes every
 | `results/06_robustness.csv` | leakage checks: student-grouped CV and train-2013 → test-2014 |
 | `results/07_*.csv` | permutation importance, 5-fold CV for the four real models |
 
-`notebooks/01_data_audit.ipynb` is the original exploratory Colab notebook. It uses Colab-only paths (`/content/...`) and `display()`. The canonical, path-free pipeline is `src/run_experiment.py`.
-
 ## Method
 
 **Prediction point.** Day 28 of the module (end of week 4).
