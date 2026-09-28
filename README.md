@@ -124,7 +124,7 @@ A linear model on scaled counts represents a monotone trend exactly, with 53 par
 
 **Remove the monotone engagement signal.**
 *Prediction:* if LR wins *because of* the smooth engagement trend, its lead over GB should appear when engagement features are present and vanish without them.
-*Result (5-fold CV, LR minus GB F1):* profile only **+0.1 pt** (0.578 vs 0.577, inside the noise); engagement only **+1.2 pt**; profile + engagement **+1.4 pt**. ✔
+*Result (5-fold CV, LR minus GB F1):* profile only **+0.1 pt** (0.578 vs 0.577, inside the noise); engagement only **+1.2 pt**; profile + engagement **+1.3 pt**. ✔
 
 The constrained model moves up toward LR. 
 
