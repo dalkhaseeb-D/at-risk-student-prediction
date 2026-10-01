@@ -1,6 +1,4 @@
-# Early Prediction of At-risk Students Using Machine Learning (OULAD)
-
-CSBP711 Advanced Artificial Intelligence, Fall 2026, Assignment 1: Datasets and Algorithm Comparison.
+# Early Prediction of At-Risk Students Using Machine Learning (OULAD)
 
 **Question.** At the end of week 4 of a course, can we tell which students will fail or withdraw, using only what the university already knows by then (enrolment profile + virtual learning environment (VLE) click logs)? Which algorithm does this best, and why?
 
