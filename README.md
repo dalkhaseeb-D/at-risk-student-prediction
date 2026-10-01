@@ -102,11 +102,7 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 | Decision Tree | 0.620 | 0.643 | 0.600 | 0.652 | 0.708 | 0.15 | 327 | 27 |
 | Dummy baseline | 0.000 | 0.000 | 0.000 | 0.500 | 0.500 | 0.05 | 2 | 0.5 |
 | *Soft-voting ensemble (LR+RF+GB)* | 0.644 | 0.649 | 0.638 | 0.679 | 0.747 | – | – | – |
-0.6788659828958821
-0.6790602962198672
-0.6757967414451003
-0.6519462013449664
-0.5
+
 
 Times were measured on a 2-core cloud CPU and will vary by machine.
 
