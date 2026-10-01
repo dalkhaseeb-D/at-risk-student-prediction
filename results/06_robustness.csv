@@ -1,5 +1,5 @@
 Check,Model,F1,ROC-AUC
 5-fold CV grouped by student,Logistic Regression,0.6473041050941845,0.742705584953849
-5-fold CV grouped by student,Gradient Boosting,0.6382892864651255,0.7430473570591799
+5-fold CV grouped by student,Gradient Boosting,0.6387599129834138,0.7437748084763364
 Train 2013 -> test 2014,Logistic Regression,0.6371066612178178,0.723208920681951
-Train 2013 -> test 2014,Gradient Boosting,0.6094395280235988,0.7180286334450756
+Train 2013 -> test 2014,Gradient Boosting,0.6035981094679067,0.7205295887847308

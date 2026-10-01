@@ -1,0 +1,10 @@
+{
+  "python": "3.13.7",
+  "sklearn": "1.9.1",
+  "pandas": "3.0.6",
+  "duckdb": "1.5.5",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 197 Stepping 2, GenuineIntel",
+  "seed": 42,
+  "data_folder": "C:\\Users\\arwas\\PycharmProjects\\AdvancedAi\\at-risk-student-prediction\\src\\data"
+}
