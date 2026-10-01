@@ -1,4 +1,4 @@
-# Early Prediction of At-risk Students (OULAD)
+# Early Prediction of At-risk Students Using Machine Learning (OULAD)
 
 CSBP711 Advanced Artificial Intelligence, Fall 2026, Assignment 1: Datasets and Algorithm Comparison.
 
