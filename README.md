@@ -127,7 +127,7 @@ A linear model on scaled counts represents a monotone trend exactly, with 53 par
 | Member | Contribution |
 |---|---|
 | Member 1 (Duaa Alkhaseeb) | Dataset selection, data download and audit notebook, ML-classifiers Applying, Feature extraction
-| Member 2 (Arwa Al-shannaq)| Data Preprocessing, Comparison table of timing/size measurement, README, slides, reproducibility testing, Ablation analysis, figures creation
+| Member 2 (Arwa Al-shannaq)| Data Preprocessing, Comparison table of timing/size measurement, README, slides, reproducibility testing, Ablation analysis, figures creation, overall consistency check
 
 
 ## Licence
