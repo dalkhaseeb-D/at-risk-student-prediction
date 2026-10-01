@@ -106,28 +106,11 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 
 Times were measured on a 2-core cloud CPU and will vary by machine.
 
-With 5-fold CV the ranking is the same:
-
-| Model | F1 | AUC | Train AUC |
-|---|---|---|---|
-| LR | 0.650 ± 0.007 | 0.743 | 0.745 |
-| GB | 0.635 ± 0.008 | 0.743 | 0.794 |
-| RF | 0.633 ± 0.009 | 0.740 | 0.825 |
-| DT | 0.615 ± 0.011 | 0.715 | 0.751 |
-
 ### Why Logistic Regression wins: a property of the data
 
 The at-risk rate falls **steadily and monotonically** as early activity rises. By active days in weeks 1–4, it goes 81% → 63% → 53% → 47% → 41% → 35% → 31% → 29% → 23% → 19% (`figures/risk_by_active_days.png`). There is no threshold, U-shape, or strong interaction. The signal is essentially "more regular early activity means lower risk", added on top of module-level base rates, and the labels are noisy because the outcome is decided weeks after day 28. That caps every model at about 0.74 AUC.
 
 A linear model on scaled counts represents a monotone trend exactly, with 53 parameters and almost no variance (train AUC = validation AUC). The tree ensembles reach the same ranking quality (AUC) but use their extra capacity to fit noise: their train–validation AUC gap is 0.05–0.09. This shows up as a lower F1 at the operating threshold and a larger drop on the later year (2013 → 2014 F1: LR 0.637 vs GB 0.609).
-
-### Ablations that test the explanation
-
-**Remove the monotone engagement signal.**
-*Prediction:* if LR wins *because of* the smooth engagement trend, its lead over GB should appear when engagement features are present and vanish without them.
-*Result (5-fold CV, LR minus GB F1):* profile only **+0.1 pt** (0.578 vs 0.577, inside the noise); engagement only **+1.3 pt**; profile + engagement **+1.2 pt**. ✔
-
-The constrained model moves up toward LR. 
 
 **Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap decreases as data grows, which is what we expect when the true pattern is simple.
 
