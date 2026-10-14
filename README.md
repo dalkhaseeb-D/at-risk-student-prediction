@@ -2,7 +2,7 @@
 
 **Question.** At the end of week 4 of a course, can we tell which students will fail or withdraw, using only what the university already knows by then (enrolment profile + virtual learning environment (VLE) click logs)? Which algorithm does this best, and why?
 
-**Short answer.** Logistic Regression wins (test F1 0.650, ROC-AUC 0.744; 5-fold CV F1 0.650 ± 0.007). It uses 53 parameters, trains in about 0.4 s, and is about 1 KB on disk. Gradient Boosting ranks cases just as well (AUC 0.744) but has a lower F1 (0.644 test, 0.635 CV), overfits (train AUC 0.79), and loses more when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
+**Short answer.** Logistic Regression wins (test F1 0.650, ROC-AUC 0.744; 5-fold CV F1 0.650 ± 0.007). It uses 53 parameters, trains in about 0.181 s, and is about 1 KB on disk. Gradient Boosting ranks cases just as well (AUC 0.744) but has a lower F1 (0.644 test, 0.635 CV), overfits (train AUC 0.79), and loses more when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
 
 ---
 
