@@ -2,7 +2,7 @@
 
 **Question.** At the end of week 4 of a course, can we tell which students will fail or withdraw, using only what the university already knows by then (enrolment profile + virtual learning environment (VLE) click logs)? Which algorithm does this best, and why?
 
-**Short answer.** Logistic Regression wins (test F1 0.650, ROC-AUC 0.744; 5-fold CV F1 0.650 ± 0.007). It uses 53 parameters, trains in about 0.181 s, and is about 1 KB on disk. Gradient Boosting ranks cases just as well (AUC 0.744) but has a lower F1 (0.644 test, 0.635 CV), overfits (train AUC 0.79), and loses more when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
+**Short answer.** Logistic Regression wins (test F1 0.650, ROC-AUC 0.744; 5-fold CV F1 0.650 ± 0.007). It uses 53 parameters, trains in about 0.181 s, and its classifier-only pickle is about 1.1 KB. This is not the size of the deployable estimator: the fitted preprocessing steps also need to be saved. The full pipeline size is reported separately after rerunning the experiment. Gradient Boosting ranks cases just as well (AUC 0.744) but has a lower F1 (0.644 test, 0.635 CV), overfits (train AUC 0.79), and loses more when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
 
 ---
 
@@ -36,7 +36,7 @@ The full run takes about 2 minutes on a 2-core laptop-class CPU. It writes every
 | `results/01_audit.csv`, `01_missing_by_column.csv` | size, duplicates, missing values per file |
 | `results/02_dataset_summary.json` | final cohort, class balance, multi-registration students |
 | `results/03_split.json` | train/test split sizes and balance |
-| `results/04_model_comparison.csv` | **main table**: metrics + train time + parameters + size |
+| `results/04_model_comparison.csv` | **main table**: metrics + train time + parameters + classifier and full-pipeline sizes |
 | `results/05_risk_by_active_days.csv` | the data property behind the explanation |
 | `results/05a_ablation_feature_sets_cv.csv` | Ablation A (all models × 3 feature sets, 5-fold CV) |
 | `results/05b_ablation_monotone_gb_cv.csv` | Ablation B (monotone-constrained Gradient Boosting) |
@@ -73,6 +73,8 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 
 **Metrics.** F1 on the at-risk class is the main metric. We also report ROC-AUC, balanced accuracy, precision, and recall.
 
+**Model size.** Sizes are measured by pickling the fitted estimator. `Classifier Size (KB)` serializes only the classifier; `Full Pipeline Size (KB)` serializes the fitted scikit-learn `Pipeline`, including imputation, one-hot encoding, scaling, and classification. Both use Python's default pickle protocol and binary KB (1,024 bytes). The checked-in comparison CSV predates the full-pipeline measurement: its classifier-only values are retained, and the new full-pipeline column remains empty until the experiment is rerun with the OULAD data. Do not interpret those empty cells as zero or compare classifier-only size as the complete deployment footprint.
+
 ## Data problems found
 
 1. **Missing values are coded as `?`.** A naive `pandas.isna()` audit, which is what our first notebook did, reports **0 missing** in every file. Once `?` is read as missing:
@@ -92,17 +94,17 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 
 ### Main comparison (held-out test set, n = 5,508)
 
-| Model | F1 | Recall | Precision | Bal. acc. | ROC-AUC | Train time (s) | Params / nodes | Size (KB) |
+| Model | F1 | Recall | Precision | Bal. acc. | ROC-AUC | Train time (s) | Params / nodes | Classifier size (KB) | Full pipeline size (KB) |
 |---|---|---|---|---|---|---|---|---|
-| **Logistic Regression** | **0.650** | **0.673** | 0.628 | 0.679 | 0.744 | 0.181 | 53 | 1.1 |
-| Gradient Boosting | 0.644 | 0.645 | 0.642 | 0.679 | 0.744 | 1.52 | 4,026 | 239.6 |
-| Random Forest | 0.630 | 0.617 | 0.643 | 0.676 | 0.739 | 1.051 | 238,742 | 18,957 |
-| Decision Tree | 0.620 | 0.643 | 0.600 | 0.652 | 0.708 | 0.261 | 327 | 26.64 |
-| Dummy baseline | 0.000 | 0.000 | 0.000 | 0.500 | 0.500 | 0.11 | 2 | 0.466 |
+| **Logistic Regression** | **0.650** | **0.673** | 0.628 | 0.679 | 0.744 | 0.181 | 53 | 1.108 | — |
+| Gradient Boosting | 0.644 | 0.645 | 0.642 | 0.679 | 0.744 | 1.52 | 4,026 | 239.6 | — |
+| Random Forest | 0.630 | 0.617 | 0.643 | 0.676 | 0.739 | 1.051 | 238,742 | 18,887.1 | — |
+| Decision Tree | 0.620 | 0.643 | 0.600 | 0.652 | 0.708 | 0.261 | 327 | 26.64 | — |
+| Dummy baseline | 0.000 | 0.000 | 0.000 | 0.500 | 0.500 | 0.11 | 2 | 0.466 | — |
 | *Soft-voting ensemble (LR+RF+GB)* | 0.644 | 0.649 | 0.638 | 0.679 | 0.747 | – | – | – |
 
 
-Times were measured on a 2-core cloud CPU and will vary by machine.
+Times were measured on a 2-core cloud CPU and will vary by machine. The committed results currently contain only the classifier-only sizes shown above; em dashes indicate that full pipeline sizes are not yet available. The repository does not include the OULAD data needed to fit those pipelines here. Running the documented experiment regenerates both size columns; performance metrics and other scientific results are unchanged by the size-only instrumentation.
 
 ### Why Logistic Regression wins: a property of the data
 
