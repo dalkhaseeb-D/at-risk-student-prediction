@@ -2,7 +2,7 @@
 
 **Question.** At the end of week 4 of a course, can we tell which students will fail or withdraw, using only what the university already knows by then (enrolment profile + virtual learning environment (VLE) click logs)? Which algorithm does this best, and why?
 
-**Short answer.** Logistic Regression wins (test F1 0.650, ROC-AUC 0.744; 5-fold CV F1 0.650 ± 0.007). It uses 53 parameters, trains in about 0.181 s, and its classifier-only pickle is about 1.1 KB. This is not the size of the deployable estimator: the fitted preprocessing steps also need to be saved. The full pipeline size is reported separately after rerunning the experiment. Gradient Boosting ranks cases just as well (AUC 0.744) but has a lower F1 (0.644 test, 0.635 CV), overfits (train AUC 0.79), and loses more when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
+**Short answer.** Logistic Regression has the highest held-out test F1 (0.650) and nearly the same ROC-AUC as Gradient Boosting (0.744 vs 0.745). Its 5-fold CV F1 is 0.650 ± 0.007. It uses 53 parameters, trains in about 0.181 s, and its classifier-only pickle is about 1.1 KB. This is not the size of the deployable estimator: the fitted preprocessing steps also need to be saved. The full pipeline size is reported separately after rerunning the experiment. Gradient Boosting has nearly the same test ROC-AUC (0.745 vs 0.744) but lower test F1 (0.643 vs 0.650). Across 5-fold CV, its F1 is 0.638 ± 0.008 and its training AUC is 0.791; it also loses more F1 when tested on a later year. **The reason is a property of the data**: risk falls with early engagement (81% at-risk with 0 active days → 19% with 25–28 active days). There is little non-linear structure for the flexible models to find, so their extra capacity mostly fits noise. one ablation test this (see [Results](#results)).
 
 ---
 
@@ -85,9 +85,9 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 
    The `date_unregistration` column also has to be converted to numeric before the day-28 filter. Otherwise the comparison fails on the `?` strings.
 2. **Duplicates.** None in the six small tables. `studentVle.csv` has **787,170 exact duplicate rows** (7.4%). These are genuine repeated daily summaries for the same student, site, and day, not copy errors, so they are kept. `COUNT(DISTINCT date)` and `COUNT(DISTINCT id_site)` are unaffected by them.
-3. **Same student in several registrations.** 2,578 students have more than one registration, and 844 of them end up with rows in both train and test. Re-running with CV grouped by student gives LR F1 0.647 vs 0.650 and AUC 0.743 vs 0.744, so no meaningful leakage.
+3. **Same student in several registrations.** 2,578 students have more than one registration, and 844 of them end up with rows in both train and test. Re-running with CV grouped by student gives LR F1 0.647 vs 0.650 and ROC-AUC 0.743 vs 0.744, so no meaningful leakage.
 4. **Leakage by timing.** VLE data is cut at day 27 and scores are excluded (see Method). Students who withdraw before day 28 are removed because their label is already known.
-5. **Distribution shift over time.** Training on 2013 presentations and testing on 2014 lowers LR AUC to 0.723 (GB: 0.718). A deployed model should be re-trained each year.
+5. **Distribution shift over time.** Training on 2013 presentations and testing on 2014 gives LR ROC-AUC 0.723 and GB ROC-AUC 0.721. A deployed model should be re-trained each year.
 6. 1,246 eligible students (4.5%) have **zero VLE activity** in weeks 1–4; 81% of them end up at risk.
 
 ## Results
@@ -97,22 +97,22 @@ A soft-voting ensemble (LR + RF + GB) is also reported.
 | Model | F1 | Recall | Precision | Bal. acc. | ROC-AUC | Train time (s) | Params / nodes | Classifier size (KB) | Full pipeline size (KB) |
 |---|---|---|---|---|---|---|---|---|
 | **Logistic Regression** | **0.650** | **0.673** | 0.628 | 0.679 | 0.744 | 0.181 | 53 | 1.108 | — |
-| Gradient Boosting | 0.644 | 0.645 | 0.642 | 0.679 | 0.744 | 1.52 | 4,026 | 239.6 | — |
-| Random Forest | 0.630 | 0.617 | 0.643 | 0.676 | 0.739 | 1.051 | 238,742 | 18,887.1 | — |
-| Decision Tree | 0.620 | 0.643 | 0.600 | 0.652 | 0.708 | 0.261 | 327 | 26.64 | — |
-| Dummy baseline | 0.000 | 0.000 | 0.000 | 0.500 | 0.500 | 0.11 | 2 | 0.466 | — |
-| *Soft-voting ensemble (LR+RF+GB)* | 0.644 | 0.649 | 0.638 | 0.679 | 0.747 | – | – | – |
+| Gradient Boosting | 0.643 | 0.645 | 0.640 | 0.679 | 0.745 | 1.520 | 4,026 | 239.605 | — |
+| Random Forest | 0.634 | 0.624 | 0.644 | 0.676 | 0.740 | 1.051 | 238,742 | 18,887.097 | — |
+| Decision Tree | 0.620 | 0.643 | 0.600 | 0.652 | 0.708 | 0.261 | 327 | 26.645 | — |
+| Dummy baseline | 0.000 | 0.000 | 0.000 | 0.500 | 0.500 | 0.110 | 2 | 0.466 | — |
+
 
 
 Times were measured on a 2-core cloud CPU and will vary by machine. The committed results currently contain only the classifier-only sizes shown above; em dashes indicate that full pipeline sizes are not yet available. The repository does not include the OULAD data needed to fit those pipelines here. Running the documented experiment regenerates both size columns; performance metrics and other scientific results are unchanged by the size-only instrumentation.
 
 ### Why Logistic Regression wins: a property of the data
 
-The at-risk rate falls **steadily and monotonically** as early activity rises. By active days in weeks 1–4, it goes 81% → 63% → 53% → 47% → 41% → 35% → 31% → 29% → 23% → 19% (`figures/risk_by_active_days.png`). There is no threshold, U-shape, or strong interaction. The signal is essentially "more regular early activity means lower risk", added on top of module-level base rates, and the labels are noisy because the outcome is decided weeks after day 28. That caps every model at about 0.74 AUC.
+The at-risk rate falls **steadily and monotonically** as early activity rises. By active days in weeks 1–4, it goes 81% → 63% → 53% → 47% → 41% → 35% → 31% → 29% → 23% → 19% (`figures/risk_by_active_days.png`). There is no threshold, U-shape, or strong interaction. The signal is essentially "more regular early activity means lower risk", added on top of module-level base rates, and the labels are noisy because the outcome is decided weeks after day 28. The real models' test ROC-AUC values range from 0.708 to 0.745.
 
-A linear model on scaled counts represents a monotone trend exactly, with 53 parameters and almost no variance (train AUC = validation AUC). The tree ensembles reach the same ranking quality (AUC) but use their extra capacity to fit noise: their train–validation AUC gap is 0.05–0.09. This shows up as a lower F1 at the operating threshold and a larger drop on the later year (2013 → 2014 F1: LR 0.637 vs GB 0.609).
+A linear model on scaled counts represents a monotone trend with 53 parameters and little train–validation AUC gap (0.745 vs 0.743). The tree ensembles have larger gaps: 0.047 for Gradient Boosting and 0.085 for Random Forest. At the operating threshold, both have lower test F1 than LR; on the later year (2013 → 2014), LR F1 is 0.637 vs 0.604 for GB.
 
-**Supporting: learning curve.** With 5% of the training data (1,101 rows), LR already reaches F1 0.630 / AUC 0.720, while GB reaches 0.573 / 0.677. The gap decreases as data grows, which is what we expect when the true pattern is simple.
+**Supporting: learning curve.** With 5% of the training data (1,101 rows), LR reaches F1 0.630 / ROC-AUC 0.720, while GB reaches F1 0.576 / ROC-AUC 0.678. The gap decreases as data grows, which is what we expect when the true pattern is simple.
 
 ### Most important features 
 
