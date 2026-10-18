@@ -260,7 +260,12 @@ def fit_and_score(X_train, X_test, y_train, y_test, categorical, numeric, repeat
         rows.append({"Model": name, **scores(y_test, pred, proba),
                      "Train time (s)": float(np.median(times)),
                      "Parameters / nodes": count_parameters(pipe.named_steps["model"]),
-                     "Size (KB)": len(pickle.dumps(pipe.named_steps["model"])) / 1024})
+                     # Keep the classifier-only figure for model payload
+                     # comparisons, and measure the deployable estimator too.
+                     # The latter includes the fitted imputers, encoder,
+                     # scaler, and classifier in the Pipeline.
+                     "Classifier Size (KB)": len(pickle.dumps(pipe.named_steps["model"])) / 1024,
+                     "Full Pipeline Size (KB)": len(pickle.dumps(pipe)) / 1024})
         fitted[name] = pipe
     return pd.DataFrame(rows), fitted
 
